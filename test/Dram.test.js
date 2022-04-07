@@ -48,4 +48,22 @@ contract('Dram', (accounts) => {
             assert.match(error.message, /Sender does not have enough funds/)
         }
     })
+
+    it('should fail if owner does not have allowance', async () => {
+        const dram = await Dram.deployed('Dram', 'DRM', TOTAL_SUPPLY, DECIMALS);
+        try {
+            await dram.transferFrom(accounts[0], accounts[1] , 5);
+        } catch (error) {
+            assert.match(error.message, /Owner does not have enough allowance/)
+        }
+    })
+
+    it('should have correct allowance after approving', async () => {
+        const dram = await Dram.deployed('Dram', 'DRM', TOTAL_SUPPLY, DECIMALS);
+        await dram.approve(accounts[1], 5, {
+            from: accounts[0]
+        });
+        const allowance = await dram.allowance(accounts[0], accounts[1]);
+        assert.equal(allowance.toNumber(), 5, 'has correct allowance')
+    })
 })
